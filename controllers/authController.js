@@ -1,34 +1,25 @@
-
-const User = require('../models/User'); 
-const jwt = require('jsonwebtoken'); 
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 
-dotenv.config(); 
+dotenv.config();
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '7d',
+    expiresIn: '1h',
   });
 };
 
-// @route   POST /api/register
 const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
-  
     const userExists = await User.findOne({ $or: [{ email }, { username }] });
-
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    
-    const user = await User.create({
-      username,
-      email,
-      password,
-    });
+    const user = await User.create({ username, email, password });
 
     if (user) {
       res.status(201).json({
@@ -47,15 +38,10 @@ const registerUser = async (req, res) => {
   }
 };
 
-// @route   POST /api/login
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
-
   try {
-    
     const user = await User.findOne({ email });
-
-    
     if (user && (await user.matchPassword(password))) {
       res.json({
         message: 'Logged in successfully',
@@ -65,7 +51,7 @@ const loginUser = async (req, res) => {
         token: generateToken(user._id),
       });
     } else {
-      res.status(401).json({ message: 'Invalid email or password' }); 
+      res.status(401).json({ message: 'Invalid email or password' });
     }
   } catch (error) {
     console.error(error);
@@ -73,4 +59,8 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+const logoutUser = (req, res) => {
+  res.json({ message: 'Logged out successfully' });
+};
+
+module.exports = { registerUser, loginUser, logoutUser };

@@ -1,29 +1,26 @@
-
 const express = require('express');
 const dotenv = require('dotenv');
-const connectDB = require('./config/db'); 
-const authRoutes = require('./routes/authRoutes'); 
-const { protect } = require('./middleware/authMiddleware'); 
+const connectDB = require('./config/db');
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const { protect } = require('./middleware/authMiddleware');
 
-dotenv.config(); 
+dotenv.config();
 
-connectDB(); 
+connectDB();
 
-const app = express(); 
+const app = express();
 
-app.use(express.json()); 
+app.use(express.json());
 
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
 app.use('/api', authRoutes);
+app.use('/api', userRoutes);
 
-app.get('/api/protected', protect, (req, res) => {
-  res.json({ message: `Welcome, ${req.user.username}! You accessed a protected route.` });
-});
-
-const PORT = process.env.PORT || 8000; 
+const PORT = process.env.PORT || 8000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
